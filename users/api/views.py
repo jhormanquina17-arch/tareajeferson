@@ -3,8 +3,12 @@ from users.api.serializers import userserializer
 from users.models import User
 from users.api import serializers
 from django.contrib.auth.hashers import make_password
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.views import APIView, Response
 
 class userapiviewset(ModelViewSet):
+
+    permission_classes = [IsAdminUser, IsAuthenticated]
     serializer_class = userserializer
     queryset = User.objects.all()  
 
@@ -21,3 +25,14 @@ class userapiviewset(ModelViewSet):
         else:
             request.data['password'] = request.user.password
         return super().update(request, *args, **kwargs)
+
+
+class Userview(APIView):
+    permission_classes = [IsAuthenticated]
+
+
+    def get(self, request):
+        serializers = userserializer(request.user)
+        return Response(serializers.data)
+    
+
